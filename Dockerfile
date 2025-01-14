@@ -1,8 +1,8 @@
 # Use the official Node.js image
 FROM node:23-alpine
 
-# Create a non-root user and group
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+# Create a non-root user with a specific UID between 10000 and 20000
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup -u 10001
 
 # Set the working directory
 WORKDIR /app/fistExpress
@@ -14,7 +14,7 @@ COPY src ./src
 # Adjust permissions for the non-root user
 RUN chown -R appuser:appgroup /app
 
-# Switch to the non-root user
+# Explicitly set the user with UID between 10000 and 20000
 USER appuser
 
 # Install dependencies
