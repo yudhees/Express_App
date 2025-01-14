@@ -1,9 +1,6 @@
 # Use the official Node.js image
 FROM node:23-alpine
 
-# Create a non-root user with a specific UID between 10000 and 20000
-# RUN addgroup -S appgroup && adduser -S appuser -G appgroup -u 10001
-
 # Set the working directory
 WORKDIR /app/fistExpress
 
@@ -11,11 +8,6 @@ WORKDIR /app/fistExpress
 COPY package.json ./ 
 COPY src ./src
 
-# Adjust permissions for the non-root user
-# RUN chown -R appuser:appgroup /app
-
-# Create a user with a known UID/GID within range 10000-20000.
-# This is required by Choreo to run the container as a non-root user.
 RUN adduser \
     --disabled-password \
     --gecos "" \
@@ -25,10 +17,16 @@ RUN adduser \
     --uid 10014 \
     "choreo"
 # Use the above created unprivileged user
-USER 10014
+# Adjust permissions for the application directory so that the user can access it
+RUN chown -R choreo:choreo /app
 
-# Explicitly set the user with UID between 10000 and 20000
-# USER appuser
+# Set npm cache directory to a writable location
+ENV npm_config_cache=/tmp/.npm
+
+# Use the created unprivileged user
+USER choreo
+
+# USER 10014
 
 # Install dependencies
 RUN npm install
